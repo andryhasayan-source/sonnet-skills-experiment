@@ -1,0 +1,33 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: контроль доступа
+(белый список + админ-команды).
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+Требуются на уровне модуля:
+
+1. ADMINS = {111}  — множество ID админов
+2. allowed_users = {111, 222}  — множество ID допущенных (админы всегда допущены)
+
+3. class AccessMiddleware(BaseMiddleware):
+   async def __call__(self, handler, event, data):
+   если event.from_user.id входит в allowed_users или ADMINS —
+   пропускает (await handler(event, data));
+   иначе отвечает event.answer("Доступ запрещён.") и возвращает None.
+   Если from_user отсутствует — не пропускает (return None).
+
+4. def parse_user_id(text: str) -> int | None
+   Из строки вида "/allow 12345" достаёт ID (целое положительное),
+   иначе None.
+
+5. async def cmd_allow(message) — команда "/allow ID", только для админов:
+   если message.from_user.id не в ADMINS — ответ "Команда только для админов.";
+   если parse_user_id вернул None — "Использование: /allow ID";
+   иначе добавляет ID в allowed_users, ответ "Пользователь {ID} допущен."
+
+6. async def cmd_deny(message) — "/deny ID", только для админов,
+   симметрично: удаляет из allowed_users (админа удалить нельзя —
+   ответ "Нельзя заблокировать админа."), при успехе
+   "Пользователь {ID} заблокирован.", если ID не было в списке —
+   тоже "Пользователь {ID} заблокирован." (идемпотентно).
+
+7. router = Router()

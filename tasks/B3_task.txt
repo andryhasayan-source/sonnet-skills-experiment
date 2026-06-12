@@ -1,0 +1,31 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: анкета клиента через FSM.
+
+ВАЖНО: только модуль с обработчиками, запуск polling — под if __name__ == "__main__".
+
+Сценарий: /order -> бот спрашивает имя -> спрашивает телефон -> подтверждает заказ.
+
+Требуются на уровне модуля:
+
+1. router = Router()
+
+2. class OrderForm(StatesGroup) с состояниями: name, phone
+
+3. async def cmd_order(message, state) — на /order:
+   ставит состояние OrderForm.name, отвечает "Как вас зовут?"
+
+4. async def process_name(message, state) — в состоянии OrderForm.name:
+   если len(message.text.strip()) < 2 — отвечает "Имя слишком короткое, попробуйте ещё раз."
+   и состояние НЕ меняет;
+   иначе сохраняет имя в state (update_data), ставит OrderForm.phone,
+   отвечает "Укажите телефон:"
+
+5. def is_valid_phone(raw: str) -> bool
+   True, если в строке 10-11 цифр (прочие символы игнорируются).
+
+6. async def process_phone(message, state) — в состоянии OrderForm.phone:
+   если is_valid_phone(message.text) ложно — отвечает
+   "Телефон некорректен, попробуйте ещё раз." и состояние не меняет;
+   иначе берёт имя из state, отвечает
+   "Спасибо, {имя}! Заказ принят, мы перезвоним." и делает state.clear().
+
+Ответы через await message.answer(...).

@@ -1,0 +1,35 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: постраничный вывод
+каталога на inline-кнопках (пагинация).
+
+ВАЖНО: только модуль с обработчиками, запуск polling — под if __name__ == "__main__".
+
+Требуются на уровне модуля:
+
+1. router = Router()
+
+2. ITEMS = ["Товар 1", ..., "Товар 23"]  (список из 23 строк, сгенерируй)
+
+3. PAGE_SIZE = 5
+
+4. def get_page(items: list, page: int, page_size: int = PAGE_SIZE) -> list
+   Возвращает элементы страницы page (нумерация с 0).
+   Для page за пределами диапазона — пустой список.
+
+5. def total_pages(items: list, page_size: int = PAGE_SIZE) -> int
+   Количество страниц (для пустого списка — 0).
+
+6. def build_page_text(items: list, page: int) -> str
+   Текст вида:
+   "Страница {page+1}/{всего}:\n- Товар 6\n- Товар 7\n..."
+
+7. def build_pager_keyboard(page: int, pages: int) -> InlineKeyboardMarkup
+   Кнопки "<<" (callback_data="page:{page-1}") и ">>"
+   (callback_data="page:{page+1}"). На первой странице нет "<<",
+   на последней нет ">>".
+
+8. async def cmd_catalog(message) — на /catalog шлёт страницу 0.
+
+9. async def on_page(callback) — на callback "page:N" редактирует
+   сообщение (callback.message.edit_text) на страницу N
+   и вызывает await callback.answer().
+

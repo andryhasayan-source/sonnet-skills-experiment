@@ -1,0 +1,33 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: список дел (todo)
+с хранением в памяти.
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+Требуются на уровне модуля:
+
+1. router = Router()
+
+2. class TodoStorage:
+   - __init__(self)
+   - add(self, user_id: int, text: str) -> int  — добавляет дело,
+     возвращает его номер (нумерация с 1, у каждого пользователя своя)
+   - list(self, user_id: int) -> list[str]
+   - done(self, user_id: int, number: int) -> bool — удаляет дело
+     по номеру, True при успехе, False если номера нет;
+     номера оставшихся дел пересчитываются (сдвигаются)
+   - дела разных пользователей независимы
+
+3. storage = TodoStorage()
+
+4. def format_list(items: list[str]) -> str
+   "Ваши дела:\n1. ...\n2. ..." или "Список пуст." для пустого.
+
+5. async def cmd_add(message) — на "/add текст" добавляет дело,
+   отвечает "Добавлено под номером {n}". Если текста после /add нет —
+   "Использование: /add текст дела".
+
+6. async def cmd_list(message) — на /list отвечает format_list(...).
+
+7. async def cmd_done(message) — на "/done N": при успехе
+   "Дело {N} выполнено!", при неверном номере "Нет дела с таким номером.",
+   если N не число — "Использование: /done номер".

@@ -1,0 +1,27 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: антифлуд-middleware.
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+Требуются на уровне модуля:
+
+1. class ThrottleStorage — хранилище попыток в памяти:
+   - __init__(self, limit: int, window: float)
+   - hit(self, user_id: int, now: float = None) -> bool
+     Регистрирует сообщение пользователя; True — если пользователь
+     в пределах лимита (не более limit сообщений за window секунд,
+     текущее включается), False — если превысил (и тогда попытка
+     не записывается). now — время в секундах, по умолчанию time.time().
+   - старые записи вне окна вычищаются.
+
+2. class AntiFloodMiddleware(BaseMiddleware):
+   - __init__(self, limit: int = 5, window: float = 10.0) —
+     создаёт внутри ThrottleStorage.
+   - async def __call__(self, handler, event, data):
+     достаёт user_id из event.from_user.id; если hit() вернул True —
+     пропускает дальше (await handler(event, data));
+     если False — отвечает event.answer("Слишком часто! Подождите немного.")
+     и handler НЕ вызывает, возвращает None.
+     Если у event нет from_user (None) — пропускает без проверки.
+
+3. router = Router() и простой эхо-обработчик async def echo(message),
+   отвечающий "ok: {текст}".
