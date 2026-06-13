@@ -1,0 +1,36 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: машина состояний заказа
+с допустимыми переходами (типовая задача: статусы заказа в e-commerce).
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+На уровне модуля:
+
+1. TRANSITIONS = {
+     "new": {"paid", "cancelled"},
+     "paid": {"shipped", "refunded"},
+     "shipped": {"delivered"},
+     "delivered": set(),
+     "cancelled": set(),
+     "refunded": set(),
+   }
+
+2. class OrderFSM:
+   - __init__(self) — у каждого заказа стартовый статус "new".
+   - status(self, order_id) -> str — текущий статус (создаёт заказ
+     в "new" при первом обращении).
+   - can_transition(self, order_id, to_status) -> bool — допустим ли
+     переход из текущего статуса в to_status по TRANSITIONS.
+   - transition(self, order_id, to_status) -> bool — выполняет переход
+     если допустим (True), иначе не меняет статус (False).
+     Переход в несуществующий статус -> False.
+   - history(self, order_id) -> list — список статусов по порядку,
+     включая стартовый "new" и все успешные переходы
+     (например ["new","paid","shipped"]). Неуспешные попытки
+     в историю НЕ попадают.
+   - is_terminal(self, order_id) -> bool — True, если из текущего
+     статуса нет исходящих переходов.
+
+3. router = Router()
+
+Заказы независимы. Главная сложность — корректная история и
+терминальные состояния.

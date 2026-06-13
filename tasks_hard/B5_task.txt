@@ -1,0 +1,35 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: middleware ограничения
+скорости с РАЗНЫМИ лимитами для команд и обычных сообщений
+(типовая задача: команды дороже, лимит строже).
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+На уровне модуля:
+
+1. class DualRateLimiter:
+   - __init__(self, cmd_limit, cmd_window, msg_limit, msg_window)
+   - check(self, user_id: int, is_command: bool, now: float) -> bool
+     Ведёт ОТДЕЛЬНЫЙ скользящий счётчик для команд и для сообщений.
+     True, если в соответствующем окне ещё есть лимит (текущее
+     включается в счёт), иначе False. Отклонённая попытка НЕ
+     учитывается. Окна и лимиты команд/сообщений независимы.
+
+2. class RateLimitMiddleware(BaseMiddleware):
+   - __init__(self, cmd_limit=3, cmd_window=10.0, msg_limit=10, msg_window=10.0)
+   - async def __call__(self, handler, event, data):
+     * user_id = event.from_user.id (если from_user None — пропустить
+       без проверки: await handler(event, data));
+     * is_command = текст события начинается с "/" (event.text);
+       если event.text None — считать НЕ командой;
+     * время взять из time.time();
+     * если check разрешает — await handler(event, data);
+     * иначе await event.answer("Лимит запросов исчерпан, подождите.")
+       и вернуть None (handler не вызывать).
+
+3. router = Router()
+
+Тесты будут дёргать DualRateLimiter.check с явным now и проверять
+middleware с мок-событиями (мокая from_user, text, answer).
+Время в middleware идёт через time.time(), поэтому в тестах middleware
+будет использоваться очень большой лимит ИЛИ патч — не закладывайся
+на конкретные значения time во внутренней логике, только на check.

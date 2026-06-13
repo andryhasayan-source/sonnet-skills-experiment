@@ -1,0 +1,31 @@
+Напиши модуль для Telegram-бота на aiogram 3.x: разбор и валидация
+callback-данных инлайн-кнопок (типовая задача: безопасный роутинг колбэков).
+
+ВАЖНО: только модуль, запуск polling — под if __name__ == "__main__".
+
+Формат callback_data: "act:<action>:<entity_id>:<page>"
+где action из {"view","edit","del"}, entity_id — положительное целое,
+page — неотрицательное целое.
+
+На уровне модуля:
+
+1. def pack(action: str, entity_id: int, page: int = 0) -> str
+   Собирает строку. Если action недопустим, entity_id <= 0 или
+   page < 0 -> ValueError. Длина результата не должна превышать
+   64 символа (ограничение Telegram) — иначе ValueError.
+
+2. def parse(data: str) -> dict | None
+   Разбирает строку обратно в {"action","entity_id","page"}.
+   Возвращает None при ЛЮБОМ нарушении формата: не 4 части,
+   неверный префикс "act", неизвестный action, нечисловые или
+   отрицательные id/page, ведущие нули в числах ("007"), лишние
+   двоеточия. parse(pack(...)) обязан давать исходные значения.
+
+3. router = Router()
+
+4. async def on_action(callback) — вызывается на колбэк:
+   parsed = parse(callback.data);
+   если None -> await callback.answer("Некорректная кнопка", show_alert=True);
+   иначе -> await callback.answer() и
+   await callback.message.answer(
+     f"Действие {parsed['action']} над #{parsed['entity_id']} (стр. {parsed['page']})")
