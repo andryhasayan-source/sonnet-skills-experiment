@@ -1,0 +1,9 @@
+{
+  "confidence": 9,
+  "checked": ["f-strings", "boundaries", "return types", "exceptions"],
+  "issues_found": [
+    {"type": "edge_case", "where": "leading zero in numeric pre-release identifier (e.g. '01')", "fix": "added isdigit() check to reject numeric identifiers with leading zeros while NUMERIC_RE fails"},
+    {"type": "logic", "where": "pre-release comparison when one has no pre-release", "fix": "implemented SemVer rule: version without pre-release > version with pre-release at equal core"},
+    {"type": "assumption", "where": "input type to parse_version", "fix": "added isinstance check returning None for non-str input instead of crashing on re.match"}
+  ]
+}

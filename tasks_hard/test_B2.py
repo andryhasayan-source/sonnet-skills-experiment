@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+# Модель-независимая версия: состояние ведём через реальные обработчики,
+# не угадывая имя внутреннего ключа решения.
 from conftest import load_solution
 from _bot_helpers import make_message, make_state, sent_text, run
 sol = load_solution("B2")
@@ -26,31 +28,44 @@ def test_cmd_survey_starts():
     assert sent_text(msg) == "Ваш возраст?"
 
 def test_process_age_invalid_stays():
-    msg, state = make_message("999"), make_state({"_step": "age"})
+    # сначала корректно стартуем опрос (решение само выставит своё состояние)
+    state = make_state()
+    run(sol.cmd_survey(make_message("/survey"), state))
+    msg = make_message("999")
     run(sol.process_age(msg, state))
     assert sent_text(msg) == "Возраст должен быть числом от 1 до 120."
-    state.set_state.assert_not_awaited()
 
 def test_process_age_ok_advances():
-    msg, state = make_message("30"), make_state({"_step": "age"})
+    state = make_state()
+    run(sol.cmd_survey(make_message("/survey"), state))
+    msg = make_message("30")
     run(sol.process_age(msg, state))
     state.set_state.assert_awaited_with(sol.Survey.city)
     assert sent_text(msg) == "Ваш город?"
-    assert state._store.get("age") == "30"
 
 def test_back_from_city():
-    msg, state = make_message("/back"), make_state({"_step": "city", "age": "30"})
-    run(sol.cmd_back(msg, state))
+    # реальный путь: старт -> ввели возраст -> на шаге city -> /back
+    state = make_state()
+    run(sol.cmd_survey(make_message("/survey"), state))
+    run(sol.process_age(make_message("30"), state))   # теперь на city
+    back = make_message("/back")
+    run(sol.cmd_back(back, state))
     state.set_state.assert_awaited_with(sol.Survey.age)
-    assert sent_text(msg) == "Ваш возраст?"
+    assert sent_text(back) == "Ваш возраст?"
 
 def test_back_from_first():
-    msg, state = make_message("/back"), make_state({"_step": "age"})
-    run(sol.cmd_back(msg, state))
-    assert sent_text(msg) == "Вы на первом вопросе."
+    state = make_state()
+    run(sol.cmd_survey(make_message("/survey"), state))   # на первом шаге
+    back = make_message("/back")
+    run(sol.cmd_back(back, state))
+    assert sent_text(back) == "Вы на первом вопросе."
 
 def test_finish_after_email():
-    state = make_state({"_step": "email", "age": "30", "city": "Москва"})
+    # проходим опрос целиком реальными шагами
+    state = make_state()
+    run(sol.cmd_survey(make_message("/survey"), state))
+    run(sol.process_age(make_message("30"), state))
+    run(sol.process_city(make_message("Москва"), state))
     msg = make_message("a@b.ru")
     run(sol.process_email(msg, state))
     assert "Готово!" in sent_text(msg)

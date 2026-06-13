@@ -1,0 +1,9 @@
+{
+  "confidence": 9,
+  "checked": ["f-strings", "boundaries", "return types", "exceptions", "unary minus associativity", "no eval", "non-str input"],
+  "issues_found": [
+    {"type": "edge_case", "where": "числа вида '.5' и '2.'", "fix": "нормализация строки числа перед float()"},
+    {"type": "edge_case", "where": "число с двумя точками '1.2.3'", "fix": "проверка dot_count>1 -> _CalcError"},
+    {"type": "edge_case", "where": "пустая строка / только пробелы", "fix": "явная проверка expr.strip()=='' -> None"}
+  ]
+}

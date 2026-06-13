@@ -1,0 +1,9 @@
+{
+  "confidence": 9,
+  "checked": ["f-strings", "boundaries", "return types", "exceptions", "ordering stability"],
+  "issues_found": [
+    {"type": "edge_case", "where": "remove_operator с несуществующим op_id", "fix": "проверка наличия в self._operators, возврат []"},
+    {"type": "logic", "where": "assign — стабильный порядок при равной нагрузке", "fix": "используется OrderedDict, итерация в порядке добавления, выбирается первый найденный с минимальной нагрузкой"},
+    {"type": "assumption", "where": "название класса Dispatcher совпадает с aiogram.Dispatcher", "fix": "в блоке __main__ aiogram Dispatcher импортирован под алиасом AiogramDispatcher, чтобы избежать конфликта имён"}
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "confidence": 9,
+  "checked": ["f-strings", "boundaries", "return types", "exceptions"],
+  "issues_found": [
+    {"type": "edge_case", "where": "deque создаётся через setdefault при каждом вызове check", "fix": "не требует исправления — setdefault корректно возвращает существующий deque, накладных расходов минимальны"}
+  ]
+}

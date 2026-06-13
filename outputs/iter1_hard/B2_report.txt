@@ -1,0 +1,9 @@
+{
+  "confidence": 9,
+  "checked": ["f-strings", "boundaries", "return types", "exceptions", "back-priority", "state keys"],
+  "issues_found": [
+    {"type": "edge_case", "where": "/back команда передаётся в process_* как обычный текст, но также зарегистрирована отдельным хендлером cmd_back с фильтром Command(\"back\")", "fix": "оставлено явное делегирование внутри process_* для прямого вызова в тестах, плюс отдельная регистрация cmd_back для реального бота — оба варианта работают"},
+    {"type": "logic", "where": "cmd_back при отсутствии 'step' в data (например при первом запуске без cmd_survey)", "fix": "используется data.get('step', ORDER[0]) как безопасный дефолт"},
+    {"type": "edge_case", "where": "validate('age', value) с пробелами вокруг числа, например ' 25 '", "fix": "value.strip() перед int() — пробелы не вызывают ValueError"}
+  ]
+}
