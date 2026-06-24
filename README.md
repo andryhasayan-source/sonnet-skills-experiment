@@ -188,3 +188,4 @@ STAGE=baseline_hard python -m pytest tasks_hard/test_P4.py -v
 Эксперимент проведён в открытом виде ради честной проверки гипотезы.
 Данные и код открыты для перепроверки и критики. Замечания и
 воспроизведения приветствуются.
+[Read the full article on Medium](https://medium.com/p/a069576684d5)
