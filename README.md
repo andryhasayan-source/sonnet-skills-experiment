@@ -189,3 +189,8 @@ STAGE=baseline_hard python -m pytest tasks_hard/test_P4.py -v
 Данные и код открыты для перепроверки и критики. Замечания и
 воспроизведения приветствуются.
 [Read the full article on Medium](https://medium.com/p/a069576684d5)
+
+- 🌐 [shashevpro.ru](https://www.shashevpro.ru)
+- 🛒 [kwork.ru/user/shashevpro](https://kwork.ru/user/shashevpro)
+- ✉️ programmer@shashevpro.ru
+- 💬 [vk.com/shashevpro](https://vk.com/shashevpro)
